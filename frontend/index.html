@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAESA — Sistema de Votação</title>
+    <link rel="stylesheet" href="/frontend/styles.css?v=4">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+
+<!--AUTH SCREEN-->
+<div class="auth-screen" id="authScreen">
+    <div class="auth-circuit"></div>
+    <div class="auth-grid"></div>
+    <div class="auth-nodes">
+        <div class="auth-node"></div>
+        <div class="auth-node"></div>
+        <div class="auth-node"></div>
+        <div class="auth-node"></div>
+        <div class="auth-node"></div>
+        <div class="auth-node"></div>
+    </div>
+
+    <div class="auth-card" id="authCard">
+        <div class="auth-logo">
+            <div class="logo-mark"><span>H</span></div>
+            <span class="logo-text">HackFAESA</span>
+        </div>
+        <p class="auth-subtitle">Sistema de Votação · Hackathon</p>
+
+        <div class="auth-panel active" id="panelLogin">
+            <h2 class="auth-title">Bem-vindo de volta</h2>
+            <form id="loginForm" novalidate>
+                <div class="field">
+                    <label>Usuário</label>
+                    <div class="field-wrap">
+                        <i class="fas fa-user-circle"></i>
+                        <input type="text" id="username" placeholder="seu_usuario" autocomplete="username" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Senha</label>
+                    <div class="field-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pw" tabindex="-1" onclick="togglePassword('password',this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary btn-full">
+                    <span>Entrar</span><i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            <p class="auth-switch">Não tem conta? <a href="#" onclick="switchPanel('register')">Criar conta</a></p>
+        </div>
+
+        <div class="auth-panel" id="panelRegister">
+            <h2 class="auth-title">Criar conta</h2>
+            <form id="signupForm" novalidate>
+                <div class="field">
+                    <label>Usuário</label>
+                    <div class="field-wrap">
+                        <i class="fas fa-user-circle"></i>
+                        <input type="text" id="newUsername" placeholder="escolha um usuario" autocomplete="username" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Senha</label>
+                    <div class="field-wrap">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="newPassword" placeholder="mínimo 6 caracteres" autocomplete="new-password" required>
+                        <button type="button" class="toggle-pw" tabindex="-1" onclick="togglePassword('newPassword',this)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary btn-full">
+                    <span>Registrar</span><i class="fas fa-arrow-right"></i>
+                </button>
+            </form>
+            <p class="auth-switch">Já tem conta? <a href="#" onclick="switchPanel('login')">Fazer login</a></p>
+        </div>
+    </div>
+</div>
+
+<!--  MAIN APP  -->
+<div class="app" id="mainApp" style="display:none">
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="auth-logo">
+                <div class="logo-mark sm"><span>F</span></div>
+                <span class="logo-text">FAESA</span>
+            </div>
+            <button class="sidebar-close" onclick="toggleSidebar()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button class="nav-item active voter-only" data-tab="voting" onclick="showTab('voting',this)">
+                <i class="fas fa-ballot-check"></i><span>Votação</span>
+            </button>
+            <button class="nav-item" data-tab="results" onclick="showTab('results',this)">
+                <i class="fas fa-chart-bar"></i><span>Resultados</span>
+            </button>
+            <button class="nav-item admin-only" data-tab="admin" onclick="showTab('admin',this)" style="display:none">
+                <i class="fas fa-shield-halved"></i><span>Admin</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-avatar" id="sidebarAvatar">?</div>
+            <div class="user-details">
+                <span class="user-name" id="sidebarUsername">—</span>
+                <span class="user-role" id="sidebarRole">Avaliador</span>
+            </div>
+            <button class="icon-btn danger" onclick="logout()" title="Sair">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <div class="main-area">
+        <header class="topbar">
+            <button class="icon-btn" onclick="toggleSidebar()" id="menuBtn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-title" id="topbarTitle">Votação</div>
+            <div class="topbar-right">
+                <button class="icon-btn theme-toggle" onclick="toggleTheme()" id="themeBtn" title="Alternar tema">
+                    <i class="fas fa-sun" id="themeIcon"></i>
+                </button>
+                <span class="user-chip">
+                    <span class="chip-avatar" id="chipAvatar">?</span>
+                    <span id="chipUsername">—</span>
+                </span>
+            </div>
+        </header>
+
+        <main class="content">
+
+            <!-- ── Voting Tab ── -->
+            <section class="tab-pane active" id="tabVoting">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">Avaliar Equipe</h1>
+                        <p class="page-desc">Selecione uma equipe e avalie cada critério</p>
+                    </div>
+                </div>
+
+                <div id="noTeamsMsg" class="info-banner" style="display:none">
+                    <i class="fas fa-circle-info"></i>
+                    Nenhuma equipe cadastrada ainda. Aguarde o administrador adicionar as equipes.
+                </div>
+
+                <form id="votingForm" novalidate>
+                    <div class="team-field-card" id="teamSelectorCard">
+                        <label class="team-label">
+                            <i class="fas fa-users"></i> Selecionar Equipe
+                        </label>
+                        <div class="team-selector" id="teamSelector">
+                            <div class="teams-loading">
+                                <i class="fas fa-circle-notch fa-spin"></i> Carregando equipes…
+                            </div>
+                        </div>
+                        <input type="hidden" id="selectedTeam">
+                    </div>
+
+                    <div class="criteria-title">
+                        <i class="fas fa-sliders-h"></i> Critérios de Avaliação
+                    </div>
+
+                    <div class="vote-progress">
+                        <span class="progress-label">Categorias avaliadas</span>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <span class="progress-count" id="progressCount">0 / 7</span>
+                    </div>
+
+                    <div class="categories-grid" id="categoriesGrid"></div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-ghost" onclick="resetVotingForm()">
+                            <i class="fas fa-redo"></i> Limpar
+                        </button>
+                        <button type="submit" class="btn-primary btn-submit" id="submitBtn">
+                            <i class="fas fa-paper-plane"></i><span>Enviar Avaliação</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- ── Results Tab ── -->
+            <section class="tab-pane" id="tabResults">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">Resultados</h1>
+                        <p class="page-desc">Ranking das equipes em tempo real</p>
+                    </div>
+                    <button class="btn-ghost" onclick="updateResults()" id="refreshBtn">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+                <div id="resultsContainer"></div>
+            </section>
+
+            <!-- ── Admin Tab ── -->
+            <section class="tab-pane" id="tabAdmin">
+                <div class="section-header">
+                    <div>
+                        <h1 class="page-title">Painel Admin</h1>
+                        <p class="page-desc">Gerencie equipes e usuários do hackathon</p>
+                    </div>
+                </div>
+
+                <!-- Adicionar Equipe -->
+                <div class="admin-card">
+                    <div class="admin-card-title">
+                        <i class="fas fa-plus-circle"></i> Adicionar Equipe
+                    </div>
+                    <div class="add-team-row">
+                        <div class="field-wrap flex-1">
+                            <i class="fas fa-users"></i>
+                            <input type="text" id="newTeamName" placeholder="Nome da equipe" maxlength="100"
+                                   onkeydown="if(event.key==='Enter'){event.preventDefault();addTeam()}">
+                        </div>
+                        <button class="btn-primary" onclick="addTeam()" id="addTeamBtn">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de Equipes -->
+                <div class="admin-card" style="margin-top:16px">
+                    <div class="admin-card-title">
+                        <i class="fas fa-list-ul"></i> Equipes Cadastradas
+                        <span class="team-count-badge" id="teamCountBadge">0</span>
+                    </div>
+                    <div id="adminTeamList" class="admin-team-list"></div>
+                </div>
+
+                <!-- Gerenciar Usuários (admin-only — hidden via JS on enterApp) -->
+                <div class="admin-card admin-only" style="margin-top:16px;display:none">
+                    <div class="admin-card-title">
+                        <i class="fas fa-users-gear"></i> Usuários Cadastrados
+                        <span class="team-count-badge" id="userCountBadge">0</span>
+                        <button class="btn-ghost btn-sm" onclick="loadUsers()" style="margin-left:auto">
+                            <i class="fas fa-sync-alt"></i> Atualizar
+                        </button>
+                    </div>
+                    <div id="adminUserList" class="admin-team-list"></div>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+<script src="/frontend/script.js?v=4"></script>
+</body>
+</html>

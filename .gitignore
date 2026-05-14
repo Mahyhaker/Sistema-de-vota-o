@@ -1,0 +1,8 @@
+.env
+voting.db
+staticfiles/
+__pycache__/
+*.pyc
+.venv/
+venv/
+cd CUsersmahyhOneDriveÁrea de Traba.txt
